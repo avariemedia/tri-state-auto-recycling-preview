@@ -1,2 +1,25 @@
+# Preview build. Pages carry <meta name=robots content=noindex> until production launch.
+# Search/answer-engine crawlers are explicitly permitted.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Model-training crawler: owner decision pending (allowed by default)
+User-agent: GPTBot
+Allow: /
+
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://avariemedia.github.io/tri-state-auto-recycling-preview/sitemap.xml
