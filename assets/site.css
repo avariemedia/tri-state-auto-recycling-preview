@@ -569,3 +569,13 @@ img{height:auto}
 .convsec .ph img{object-position:50% 100%}
 .trust{gap:0 40px}
 .explore .trayrow{padding-top:28px;padding-bottom:40px}
+img[src*="converters-staged"]{object-position:50% 88%!important}
+.mosaic{grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.mosaic img{min-height:0}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--ink)}
+.pgrid>div{padding:28px 28px 30px 0;border-bottom:1px solid var(--line-l)}
+.pgrid>div:not(:nth-child(3n+1)){padding-left:28px;border-left:1px solid var(--line-l)}
+.pgrid h3{font-size:clamp(24px,2.2vw,32px);margin-bottom:10px}
+.pgrid p{color:var(--steel);font-size:16px;max-width:36ch}
+@media (max-width:1080px){.pgrid{grid-template-columns:1fr 1fr}.pgrid>div{padding:24px 20px 24px 0!important;border-left:0!important}.pgrid>div:nth-child(2n){padding-left:20px!important;border-left:1px solid var(--line-l)!important}}
+@media (max-width:760px){.pgrid{grid-template-columns:1fr}.pgrid>div{padding:20px 0!important;border-left:0!important}
+ .mosaic{grid-template-rows:auto auto}}
