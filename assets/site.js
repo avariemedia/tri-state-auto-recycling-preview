@@ -76,18 +76,39 @@ $$('form.flow').forEach(form=>{
   const h=$('legend,.q',s);if(h&&n>0){h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}
   if(n>0)form.scrollIntoView({behavior:rm?'auto':'smooth',block:'start'})}
  next.addEventListener('click',async()=>{const s=steps[i];if(!valid(s))return;
-  if(s.hasAttribute('data-submit')){await submit(form);go(steps.findIndex(x=>x.hasAttribute('data-final')));return}
+  if(s.hasAttribute('data-submit')){next.disabled=true;const lbl=next.textContent;next.textContent='Sending…';await submit(form);next.disabled=false;next.textContent=lbl;go(steps.findIndex(x=>x.hasAttribute('data-final')));return}
   go(i+1)});
  back.addEventListener('click',()=>go(Math.max(0,i-1)));
  form.addEventListener('submit',e=>{e.preventDefault();next.click()});
  form.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='submit'){e.preventDefault();next.click()}});
  sync();go(0)});
 function fd(form){const o={};new FormData(form).forEach((v,k)=>{if(v instanceof File){if(v.size){(o[k]=o[k]||[]).push(v.name)}return}if(o[k]!==undefined){o[k]=[].concat(o[k],v)}else o[k]=v});return o}
-async function submit(form){const data=fd(form);data.form=form.dataset.form;data.page=location.pathname;data.submitted_at=new Date().toISOString();
- const ep=form.dataset.endpoint;
- if(ep){try{await fetch(ep,{method:'POST',body:new FormData(form)})}catch(e){}}
- else{window.TS_LAST_SUBMISSION=data;console.info('[prototype] form not connected to a backend. Payload:',data)}
- const t=$('[data-ticket-id]',form);if(t)t.textContent='TS-'+Date.now().toString(36).toUpperCase().slice(-6)}
+/* ---------- lead delivery ---------- */
+const T0=Date.now();
+try{const q=new URLSearchParams(location.search),u=JSON.parse(sessionStorage.getItem('ts-utm')||'{}');let ch=false;['utm_source','utm_medium','utm_campaign'].forEach(k=>{if(q.get(k)){u[k]=q.get(k);ch=true}});if(ch)sessionStorage.setItem('ts-utm',JSON.stringify(u));if(!sessionStorage.getItem('ts-ref'))sessionStorage.setItem('ts-ref',document.referrer&&!document.referrer.includes(location.host)?document.referrer:'(direct)')}catch(e){}
+function shrink(file){return new Promise(res=>{if(!/^image\//.test(file.type)){res(null);return}const img=new Image(),url=URL.createObjectURL(file);
+ img.onload=()=>{const k=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res({name:file.name.replace(/\.[^.]+$/,'')+'.jpg',data:c.toDataURL('image/jpeg',.75)})};
+ img.onerror=()=>{URL.revokeObjectURL(url);res(null)};img.src=url})}
+function payload(form,d){const mats=[].concat(d.materials||[]);
+ const p={form:form.dataset.form,page:location.pathname,referrer:sessionStorage.getItem('ts-ref')||'',elapsed_ms:Date.now()-T0,hp:d.hp||'',
+  name:d.name,business:d.business,phone:d.phone,email:d.email,contact_pref:d.contact_pref,zip:d.zip,biz_type:d.biz_type,timing:d.timing,description:d.description,
+  units:d.units,conv_type:d.conv_type,serial:[].concat(d.serial||[]).filter(Boolean).join(', '),
+  materials_summary:mats.map(k=>((M[k]||{}).n||k)+(d['vol_'+k]?' — '+d['vol_'+k]:'')).join('\n'),
+  shop_profile:[['Bays',d.bays],['Locations',d.locations],['Handling now',d.handling],['Pickup frequency',d.frequency],['Biggest frustration',d.frustration]].filter(x=>x[1]).map(x=>x[0]+': '+[].concat(x[1]).join(', ')).join('\n'),
+  photo_count:(d.photos||[]).length};
+ try{Object.assign(p,JSON.parse(sessionStorage.getItem('ts-utm')||'{}'))}catch(e){}
+ return p}
+async function submit(form){const d=fd(form);const ep=form.dataset.endpoint;let state='preview',id='';
+ if(ep){const p=payload(form,d);
+  const files=$$('input[type=file]',form).flatMap(i=>[...i.files]).slice(0,8);
+  p.photos=(await Promise.all(files.map(shrink))).filter(Boolean);
+  try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),25000);
+   const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p),signal:ctl.signal});clearTimeout(to);
+   const j=await r.json().catch(()=>({}));state=j.ok?'ok':'fail';id=j.id||''}catch(e){state='fail'}
+  if(window.gtag&&state==='ok')gtag('event','generate_lead',{form_name:form.dataset.form})}
+ else{window.TS_LAST_SUBMISSION=d}
+ $$('.sent-ok,.sent-fail,.sent-preview',form).forEach(x=>x.hidden=!x.classList.contains('sent-'+state));
+ const t=$('[data-ticket-id]',form);if(t)t.textContent=id||('TS-'+Date.now().toString(36).toUpperCase().slice(-6))}
 const VOL=['A few pieces','A bin or pallet','Pickup-truck load','Several loads'];
 function buildVol(form,s){const box=$('.vol',s);const mats=$$('input[name=materials]:checked',form).map(x=>x.value);const prev=fd(form);
  box.innerHTML=mats.length?mats.map(k=>`<div class="vrow" data-req-group><b>${(M[k]||{}).n||k}</b><div class="opts">${VOL.map(v=>`<label class="opt"><input type="radio" name="vol_${k}" value="${v}" ${prev['vol_'+k]===v?'checked':''}><span>${v}</span></label>`).join('')}</div></div>`).join(''):'<p class="mute">Go back and choose at least one material.</p>'}

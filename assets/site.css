@@ -585,3 +585,4 @@ img[src*="converters-laid-out"]{object-position:50% 60%!important}
  .geo-m .hq circle{r:11px}.geo-m .hq .ring{r:22px;stroke-width:4}}
 @media (min-width:761px) and (max-width:1080px){.pgrid>div:nth-child(2n){padding-left:20px!important;border-left:1px solid var(--line-l)!important}}
 @media (max-width:760px){.pgrid>div:nth-child(n){padding:20px 0!important;border-left:0!important}}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}.sent-ok{margin-top:18px;font-weight:600;border-left:3px solid var(--cu);padding-left:14px}
