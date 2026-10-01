@@ -428,3 +428,5 @@ footer.ft{background:var(--ink);color:#bdb9b0;padding:70px var(--pad) 120px;font
 .stagegrid.c4{grid-template-columns:repeat(4,1fr)}
 @media (max-width:1080px){.stagegrid.c4{grid-template-columns:1fr 1fr}}
 @media (max-width:760px){.fnav{background:var(--bone)}.dark .fnav,.tool.dark .fnav{background:var(--ink)}.tray-btn .tx{display:none}.stagegrid.c4{grid-template-columns:1fr}}
+.h-band:after{background:linear-gradient(0deg,rgba(15,15,14,.95) 10%,rgba(15,15,14,.55) 60%,rgba(15,15,14,.35))}
+@media (max-width:760px){.h-split .acts{flex-direction:column;align-items:stretch}.h-band .in{padding-top:110px}}
