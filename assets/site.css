@@ -423,3 +423,8 @@ footer.ft{background:var(--ink);color:#bdb9b0;padding:70px var(--pad) 120px;font
  .art p{font-size:17.5px}.art blockquote{font-size:26px}
  .score{bottom:76px}
 }
+[tabindex="-1"]:focus{outline:none}
+.tray-btn{white-space:nowrap}
+.stagegrid.c4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:1080px){.stagegrid.c4{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){.fnav{background:var(--bone)}.dark .fnav,.tool.dark .fnav{background:var(--ink)}.tray-btn .tx{display:none}.stagegrid.c4{grid-template-columns:1fr}}
