@@ -28,15 +28,23 @@ const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEac
 $$('.rv,.map').forEach(el=>io?io.observe(el):el.classList.add('on'));
 /* hero video: only play when motion allowed */
 const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
-$$('video[data-auto]').forEach(v=>{if(rm){v.removeAttribute('autoplay');v.pause();return}const src=matchMedia('(max-width:760px)').matches&&v.dataset.m?v.dataset.m:v.dataset.d;if(src&&!v.src){v.src=src}v.muted=true;v.play().catch(()=>{})});
-/* ---------- material explorer ---------- */
-const scene=$('.scene'),panel=$('.mpanel');
-function show(k){const m=M[k];if(!m||!panel)return;panel.dataset.k=k;
- $$('.hot,.mchips button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
- $('h3',panel).textContent=m.n;$('[data-f=what]',panel).textContent=m.what;$('[data-f=why]',panel).textContent=m.why;$('[data-f=how]',panel).textContent=m.stage;
- const a=$('.add',panel);a.dataset.mat=k;const l=$('a.tl',panel);l.href=m.url;l.textContent=m.n+' guide';sync()}
-if(scene&&panel){Object.entries(M).forEach(([k,m])=>{if(m.x!=null){const b=document.createElement('button');b.type='button';b.className='hot';b.dataset.k=k;b.style.left=m.x+'%';b.style.top=m.y+'%';b.setAttribute('aria-label','Show '+m.n);b.innerHTML=`<i></i><span>${m.n}</span>`;b.onclick=()=>show(k);scene.appendChild(b);
- const c=document.createElement('button');c.type='button';c.dataset.k=k;c.textContent=m.n;c.onclick=()=>show(k);$('.mchips').appendChild(c)}});show('catalytic-converters')}
+/* ---------- material explorer (v3) ---------- */
+const E=window.TS_EXP||{};const panel=$('.mpanel');let lastT=null;
+function show(k,opts={}){const m=E[k];if(!m||!panel)return;panel.dataset.k=k;
+ $$('.hot,.mtabs [role=tab]').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);b.setAttribute(b.getAttribute('role')==='tab'?'aria-selected':'aria-expanded',on)});
+ $('.mp-empty',panel).hidden=true;const bd=$('.mp-body',panel);bd.hidden=false;
+ $('h3',bd).textContent=m.n;['what','handle','next'].forEach(f=>$(`[data-f=${f}]`,bd).textContent=m[f]);
+ const a=$('.add',bd);a.dataset.mat=m.mat;const l=$('a.tl',bd);l.href=m.url;l.textContent=m.n+' guide';sync();
+ if(opts.focus&&matchMedia('(max-width:1080px)').matches){panel.scrollIntoView({block:'nearest',behavior:rm?'auto':'smooth'})}}
+function hide(){if(!panel)return;$('.mp-body',panel).hidden=true;$('.mp-empty',panel).hidden=false;delete panel.dataset.k;
+ $$('.hot,.mtabs [role=tab]').forEach(b=>{b.classList.remove('on');b.setAttribute(b.getAttribute('role')==='tab'?'aria-selected':'aria-expanded',false)});if(lastT)lastT.focus()}
+if(panel){$$('.hot,.mtabs [role=tab]').forEach(b=>{b.addEventListener('click',()=>{lastT=b;show(b.dataset.k,{focus:true})});
+  if(b.classList.contains('hot'))b.addEventListener('mouseenter',()=>{if(matchMedia('(hover:hover) and (pointer:fine)').matches)show(b.dataset.k)})});
+ $('.mp-close',panel).addEventListener('click',hide);
+ panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();hide()}});
+ show('catalytic-converters')}
+/* ---------- prefill business type from ?type= ---------- */
+{const qt=new URLSearchParams(location.search).get('type');if(qt){$$('select[name=biz_type]').forEach(s=>{const o=[...s.options].find(o=>o.value===qt);if(o)s.value=qt})}}
 /* ---------- library search ---------- */
 const ls=$('#libq');if(ls){ls.addEventListener('input',()=>{const q=ls.value.trim().toLowerCase();let n=0;$$('.lib li').forEach(li=>{const hit=!q||li.dataset.s.includes(q);li.hidden=!hit;if(hit)n++});$('#libn').textContent=n+' materials'})}
 /* ---------- map ---------- */
